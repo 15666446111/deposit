@@ -1,0 +1,48 @@
+@charset "UTF-8";
+/* 后台通用样式 */
+/* 全后台通用字体  华文细黑 */
+@font-face {font-family: wenquanyiweimihei; src:url('../Font/wenquanyiweimihei.ttf')}
+html, body *{ font-family : 'MicrosoftYaHei', "Microsoft YaHei"; margin:0; padding: 0}
+
+/* 主内容区域 Section 标签区域 设置背景为淡灰色 */
+body{background: #f5f5f5; margin: 0; padding: 0}
+.container{width: 40%;}
+.IconTD{padding-left: 15px!important;}
+.rowfix{padding: 0; margin:0;}
+/* 系统概览页面*/
+
+
+
+
+
+/* 设置后台主页 小信息块为块状*/
+.info-box{cursor: pointer;}
+.header h4{font-weight: normal; font-size: 16px;}
+.card .header{padding: 15px;}
+.card .header .header-dropdown{top: 15px;}
+.table > thead > tr > th{font-size: 14px; font-weight: normal; color:#9c9c9c;}
+.table > tbody > tr > td{font-size: 12px; font-weight: normal; color:#333;}
+
+/* 列表页面 优化调整 */
+table td{height: 36px;}
+.sweet-alert{width: 395px;}
+.sweet-alert input{ float: left; height: 38px; font-size:14px;}
+.sweet-alert p img{float: right;}
+/** 弹出层的框大小**/
+.sweet-alert button{margin:20px 4px 10px 10px; border-radius:5px!important;}
+.sweet-alert .sa-input-error{display: none!important;}
+.sweet-alert p{font-size:12px;}
+td i{font-weight: bold!important;}
+
+table .label{font-weight: normal;}
+small b{color:#E91E63 !important; font-weight: bold;}
+.icon{cursor: pointer;}
+h4 b{font-size:14px;}
+/** 操作按钮样式**/
+.manipulate i{font-size:16px; color:white; vertical-align:sub;}
+.manipulate{padding: 3px 4px; background: #2196F3; border-radius: 3px; text-align: center; margin:0 5px;}
+.caption{background-color: #FF5722!important}
+
+/* Table 表格 鼠标滑过样式 */
+table tbody tr:hover td{ border-bottom: 1px solid #2196F3!important; transition: 1.3s!important; cursor: pointer!important;}
+.pagination > li > a, .pagination > li > span{border:none;}
