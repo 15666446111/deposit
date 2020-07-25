@@ -150,7 +150,6 @@ class AliController extends Controller
         try{
             
             $data = file_get_contents('php://input');
-            Log::info($_REQUEST);
             ## 获取系统参数
             $platform_code = "cj";
             
