@@ -50,6 +50,8 @@ class AlipayCli
     {
         $token = $this->requestToken( $auth_code );
 
+        dd($token);
+
         if (isset ( $token->alipay_system_oauth_token_response )) {
 
             $token_str = $token->alipay_system_oauth_token_response->access_token;
