@@ -33,11 +33,11 @@ class AlipayCli
      */
     public function __construct(Zfconfig $config)
     {
-        $this->aop = new AopClient();
-        $this->aop->appId = $config->app_id;
-        $this->aop->gatewayUrl = $config->gatewayUrl;
-        $this->aop->alipayrsaPublicKey = $config->alipay_pub_key;
-        $this->aop->rsaPrivateKey   = $config->private_key;
+        $this->aop                      = new AopClient();
+        $this->aop->appId               = $config->app_id;
+        $this->aop->gatewayUrl          = $config->gatewayUrl;
+        $this->aop->alipayrsaPublicKey  = $config->alipay_pub_key;
+        $this->aop->rsaPrivateKey       = $config->private_key;
     }
 
     /**
@@ -57,12 +57,13 @@ class AlipayCli
             $user_info = $this->requestUserInfo ( $token_str );
 
             if (isset ( $user_info->alipay_user_userinfo_share_response )) {
+
                 return $user_info;
+
             }else
                 return ['code' => -100002, 'msg' => '用户信息获取失败!'];
         }else
             return ['code' => -100001, 'msg' => 'token获取失败!'];
-
     }
 
     /**

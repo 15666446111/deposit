@@ -38,7 +38,7 @@ class AliController extends Controller
             ## 通过传过来的用户获取相关用户的平台参数
             $user = User::where('username',decrypt($request->route('user')))->firstOrFail();
 
-            $Url = "https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=".config('Alipay.app_id')."&scope=auth_userinfo&redirect_uri=".$return_url;
+            $Url = "https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=".$user->configs->app_id."&scope=auth_userinfo&redirect_uri=".$return_url;
             Log::info('step0'.$Url);
             return redirect($Url);
         }catch(Exception $e){
@@ -58,11 +58,14 @@ class AliController extends Controller
      */
     public function getUserInfo(Request $request)
     {
-        dd("111");
-        $username = decrypt(basename($request->path()));
-        $user_info = User::where('username',$username )->first();
-        $reponse = new AlipayCli($user_info->configs);
-        $UserInfo = $reponse->getUserInfo($request->auth_code);
+        $username   = decrypt(basename($request->path()));
+        
+        $user_info  = User::where('username', $username)->first();
+
+        $reponse    = new AlipayCli($user_info->configs);
+
+        $UserInfo   = $reponse->getUserInfo($request->auth_code);
+
         dd($UserInfo);
         $User = \App\Zfbuser::where('openid', $UserInfo->alipay_user_userinfo_share_response->user_id)->first();
         if(empty($User) or !$User)
