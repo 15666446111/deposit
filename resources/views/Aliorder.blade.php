@@ -45,7 +45,7 @@
                         <p>您的姓名</p>
                     </div>
                     <div class="weui-cell__ft">
-                        <input type="text" class="weui-input" style="text-align: center;" name="name" id="name" value="">
+                        <input type="text" class="weui-input" style="text-align: right;" name="name" id="name" value="">
                     </div>
                 </div>
 
@@ -54,7 +54,7 @@
                         <p>您的手机号</p>
                     </div>
                     <div class="weui-cell__ft">
-                        <input type="text" class="weui-input" style="text-align: center;" name="mobile" id="mobile" value="">
+                        <input type="text" class="weui-input" style="text-align: right;" name="mobile" id="mobile" value="">
                     </div>
                 </div>
 
