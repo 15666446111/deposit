@@ -85,12 +85,13 @@ class AliController extends Controller
                 //'platform'=>$user_info->configs->platform_code
             ]);
         }
-        dd($UserInfo);
+
         // 用户最后一次扫码时间
         $User->login_time = date("Y-m-d H:i:s", time());
         $User->save();
         // -- 使用客户信息 创建预授权订单 等待用户唤起收银台支付
         $time   = $request->route('time');  // 客户扫的二维码创建时间
+        
         $parent = decrypt($request->route('user'));  // 客户的邀请人信息
         ## 如果是 一下手机号 押金金额修改 为1
 
@@ -98,11 +99,11 @@ class AliController extends Controller
         $order  =  \App\Order::create([
             'order_no'          => "HGJ".$this->build_rand_no(),      //预授权订单号
             'order_request_no'  => "ZNHGJ".$this->build_rand_no(),    //预授权资金流水号
-            'order_title'       => "Apply for Probation",            //订单标题
-            'order_amount'      =>  9900,                           //订单金额
-            'order_user'        =>  $User->openid,                  //订单会员
-            'order_user_name'   =>  $User->nickname,                //订单会员名称
-            'order_parent'      =>  $parent,                        //邀请人帐号
+            'order_title'       => "Apply for Probation",             //订单标题
+            'order_amount'      =>  9900,                             //订单金额
+            'order_user'        =>  $User->openid,                    //订单会员
+            'order_user_name'   =>  $User->nickname,                  //订单会员名称
+            'order_parent'      =>  $parent,                          //邀请人帐号
             'extra_param_outStoreAlias'    => '领取成功!',           //支付宝信息展示页展示的说明
             'alipay_payee_logon'=>  $user_info->configs->account,              //收款方支付宝登录帐号
             'platform'=>  $user_info->configs->platform_code,              //收款方支付宝登录帐号
