@@ -66,7 +66,6 @@ class AliController extends Controller
 
         $UserInfo   = $reponse->getUserInfo($request->auth_code);
 
-        dd($UserInfo);
         $User = \App\Zfbuser::where('openid', $UserInfo->alipay_user_userinfo_share_response->user_id)->first();
         if(empty($User) or !$User)
         {

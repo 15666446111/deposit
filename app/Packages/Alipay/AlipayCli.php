@@ -55,8 +55,6 @@ class AlipayCli
             $token_str = $token->alipay_system_oauth_token_response->access_token;
 
             $user_info = $this->requestUserInfo ( $token_str );
-            
-            dd($user_info);
 
             if (isset ( $user_info->alipay_user_userinfo_share_response )) {
 
