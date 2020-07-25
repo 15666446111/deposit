@@ -51,13 +51,26 @@ Route::group(['middleware' => ['UserLogin']], function () {
  */
 ##  支付测试
 
-Route::any('/Ali/gateway/{platform?}',              'AliController@Gateway');       //支付宝网关
+
+
+
+/**
+ * @author [ pudding] <[< 755969423@qq.com >]>
+ * @version [<vector>] [< 支付宝端扫码 >]
+ */
+Route::any('/Ali/{time}/{user}',        'AliController@index');                             // 扫码打开界面
+Route::any('/auth/Ali/{time}/{user}',   'AliController@getUserInfo');                       // auth 授权后换区ACCTSS TOKEN
+
+
+
+
+Route::any('/Ali/gateway/{platform?}',  'AliController@Gateway');       //支付宝网关
 Route::any('/Ali/notify',               'AliController@orderNotify');   //授权订单异步回调
 
 Route::get('/Ali/orderStatus/{orderNo}','AliController@orderStatus');   // 支付宝支付成功后的跳转页面
 
-Route::any('/Ali/{time}/{user}',        'AliController@index');         // 扫码打开界面
-Route::any('/auth/Ali/{time}/{user}',   'AliController@getUserInfo');   // auth 授权后换区ACCTSS TOKEN
+
+
 Route::post('/setName',                 'AliController@setName');       // 更改支付宝订单姓名
 
 

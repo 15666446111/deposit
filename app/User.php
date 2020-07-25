@@ -54,6 +54,7 @@ class User extends Authenticatable
     {
          return $this->hasMany('\App\Order',  'order_parent', 'username')->whereNotNull('alipay_payer_user');
     }
+    
     public function configs(){
         return $this->hasOne(Zfconfig::class,'platform','platform');
     }
