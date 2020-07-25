@@ -112,20 +112,76 @@ class AliController extends Controller
         // -- 生成预冻结资金订单
         // Log::info(json_encode($order));
         $key = 'Alipay.amounts.'.$user_info->configs->platform_code;
+
         $amounts = config($key)?config($key):'100';
-        Log::info("key:".$key);
-        Log::info("amounts:".$amounts);
+
         $FundAuthOrder  = $reponse->getAuthOrder($order);
+
         return view('Aliorder', compact('User', 'order', 'parent', 'FundAuthOrder','amounts'));
+    }
+
+
+    /**
+     * [orderStatus 展示支付结果页面]
+     * @author Pudding 2019-09-25
+     * @param  Request $request [description]
+     * @return [type]           [description]
+     */
+    public function orderStatus(Request $request)
+    {
+        $orderNo =  $request->route('orderNo');
+
+        // 获得订单信息
+        $order = \App\Order::where('order_no', $orderNo)->first();
+
+        if(!$order or empty($order)) abort('404');
+
+        return view('Success', compact('order'));
+    }
+
+
+    /**
+     * [Gateway 支付宝生活号网关验证]
+     * @author Pudding 2019-09-23
+     * @param  Request $request [description]
+     */
+    public function Gateway(Request $request)
+    {
+        try{
+            //dd("!1");
+            $data = file_get_contents('php://input');
+            Log::info($_REQUEST);
+            ## 获取系统参数
+            $platform_code = "cj";
+            
+            $config = Zfconfig::where('platform_code', $platform_code)->firstOrFail();
+
+            parse_str($data, $data);
+
+            if (empty($data['sign']) || empty($data['sign_type']) || empty($data['biz_content'])|| empty($data['service']) || empty($data['charset'])) {
+                $this->verifygw(false, $config);
+            }
+
+            $as = new AopClient();
+
+            $as->alipayrsaPublicKey=$config->alipay_pub_key;
+
+            $is_sign_success = $as->rsaCheckV2($_REQUEST,$config->alipay_pub_key, $config->sign_type);
+
+            $this->verifygw($is_sign_success, $config);
+            
+        }catch(Exception $error){
+            Log::info($error->getMessage());
+        }
     }
 
 
 
 
 
-
     ## 扣款
-    public function payments(Request $request){
+    public function payments(Request $request)
+    {
         // == 获取到30天之外的订单
         ## 2019-11-22
         //HGJ2019102502666 臧坤坤
@@ -217,26 +273,6 @@ class AliController extends Controller
     }
 
 
-
-    /**
-     * [orderStatus 展示支付结果页面]
-     * @author Pudding 2019-09-25
-     * @param  Request $request [description]
-     * @return [type]           [description]
-     */
-    public function orderStatus(Request $request)
-    {
-        $orderNo =  $request->route('orderNo');
-
-        // 获得订单信息
-        $order = \App\Order::where('order_no', $orderNo)->first();
-
-        //if(!$order or empty($order)) abort('404');
-
-        return view('Success', compact('order'));
-    }
-
-
     /**
      * [orderNotify 支付宝预授权订单支付异步回调]
      * @author Pudding 2019-09-25
@@ -316,31 +352,9 @@ class AliController extends Controller
         return date('Ymd') . str_pad(mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
     }
 
-    /**
-     * [Gateway 支付宝生活号网关验证]
-     * @author Pudding 2019-09-23
-     * @param  Request $request [description]
-     */
-    public function Gateway(Request $request)
-    {
-        try{
-            $data = file_get_contents('php://input');
-            Log::info($_REQUEST);
-            ## 获取系统参数
-            $platform_code = $request->route('platform');
-            $config = Zfconfig::where('platform_code',$platform_code)->firstOrFail();
-            parse_str($data, $data);
-            if (empty($data['sign']) || empty($data['sign_type']) || empty($data['biz_content'])|| empty($data['service']) || empty($data['charset'])) {
-                $this->verifygw(false, $config);
-            }
-            $as = new AopClient();
-            $as->alipayrsaPublicKey=$config->alipay_pub_key;
-            $is_sign_success = $as->rsaCheckV2($_REQUEST,$config->alipay_pub_key, $config->sign_type);
-            $this->verifygw($is_sign_success, $config);
-        }catch(Exception $error){
-            Log::info($error->getMessage());
-        }
-    }
+
+
+
     private function verifygw($is_sign_success,$config){
         $as = new AopClient();
         $as->rsaPrivateKey=$config->private_key;

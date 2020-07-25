@@ -60,14 +60,11 @@ Route::group(['middleware' => ['UserLogin']], function () {
  */
 Route::any('/Ali/{time}/{user}',        'AliController@index');                             // 扫码打开界面
 Route::any('/auth/Ali/{time}/{user}',   'AliController@getUserInfo');                       // auth 授权后换区ACCTSS TOKEN
+Route::get('/Ali/orderStatus/{orderNo}','AliController@orderStatus');                       // 支付宝支付成功后的跳转页面
 
+Route::any('/Ali/gateway',              'AliController@Gateway');                           //支付宝应用网管网关  配置验证
+Route::any('/Ali/notify',               'AliController@orderNotify');                       //授权订单异步回调
 
-
-
-Route::any('/Ali/gateway/{platform?}',  'AliController@Gateway');       //支付宝网关
-Route::any('/Ali/notify',               'AliController@orderNotify');   //授权订单异步回调
-
-Route::get('/Ali/orderStatus/{orderNo}','AliController@orderStatus');   // 支付宝支付成功后的跳转页面
 
 
 

@@ -147,12 +147,11 @@
                     success: function(data) {}
                 });
 
-
                 ap.tradePay({
                   orderStr: "{!! $FundAuthOrder !!}"
                 }, function(res){
                     if (res.resultCode === "9000") {
-                        ap.redirectTo("http://deposit.lswlpay.com/Ali/orderStatus/" + "{{$order->order_no}}");
+                        ap.redirectTo("http://deposit.changhuoban.com/Ali/orderStatus/" + "{{$order->order_no}}");
                         //$.alert("订单支付成功 TO::!");
                     }
                     if (res.resultCode === "8000") {
