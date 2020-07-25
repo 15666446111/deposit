@@ -58,6 +58,7 @@ class AliController extends Controller
      */
     public function getUserInfo(Request $request)
     {
+        dd("111");
         $username = decrypt(basename($request->path()));
         $user_info = User::where('username',$username )->first();
         $reponse = new AlipayCli($user_info->configs);
