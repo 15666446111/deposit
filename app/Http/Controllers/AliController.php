@@ -50,6 +50,71 @@ class AliController extends Controller
 
 
 
+    /**
+     * [getToken 授权后 获取AccessToken]
+     * @author Pudding 2019-09-23
+     * @param  Request $request [description]
+     * @return [type]           [description]
+     */
+    public function getUserInfo(Request $request)
+    {
+        $username = decrypt(basename($request->path()));
+        $user_info = User::where('username',$username )->first();
+        $reponse = new AlipayCli($user_info->configs);
+        $UserInfo = $reponse->getUserInfo($request->auth_code);
+        dd($UserInfo);
+        $User = \App\Zfbuser::where('openid', $UserInfo->alipay_user_userinfo_share_response->user_id)->first();
+        if(empty($User) or !$User)
+        {
+            $User = \App\Zfbuser::create([
+                'openid'    =>  $UserInfo->alipay_user_userinfo_share_response->user_id,
+                'nickname'  =>  isset($UserInfo->alipay_user_userinfo_share_response->nick_name) ? $UserInfo->alipay_user_userinfo_share_response->nick_name : '',
+                'province'  =>  isset($UserInfo->alipay_user_userinfo_share_response->province) ? $UserInfo->alipay_user_userinfo_share_response->province : '',
+                'city'      =>  isset($UserInfo->alipay_user_userinfo_share_response->city) ? $UserInfo->alipay_user_userinfo_share_response->city : '',
+                'avatar'    =>  isset($UserInfo->alipay_user_userinfo_share_response->avatar)?$UserInfo->alipay_user_userinfo_share_response->avatar:"",
+                'gender'    =>  isset($UserInfo->alipay_user_userinfo_share_response->gender)?$UserInfo->alipay_user_userinfo_share_response->gender:"",
+                'user_type' =>  isset($UserInfo->alipay_user_userinfo_share_response->user_type_value)?$UserInfo->alipay_user_userinfo_share_response->user_type_value:"",
+                'alipayid'  =>  isset($UserInfo->alipay_user_userinfo_share_response->alipay_user_id)?$UserInfo->alipay_user_userinfo_share_response->alipay_user_id:"",
+                'user_status'   =>  isset($UserInfo->alipay_user_userinfo_share_response->user_status)?$UserInfo->alipay_user_userinfo_share_response->user_status:"",
+                'is_certified'  =>  isset($UserInfo->alipay_user_userinfo_share_response->is_certified)?$UserInfo->alipay_user_userinfo_share_response->is_certified:"",
+                'is_student_certified' => isset($UserInfo->alipay_user_userinfo_share_response->is_student_certified)?$UserInfo->alipay_user_userinfo_share_response->is_student_certified:"",
+                'platform'=>$user_info->configs->platform_code
+            ]);
+        }
+        // 用户最后一次扫码时间
+        $User->login_time = date("Y-m-d H:i:s", time());
+        $User->save();
+        // -- 使用客户信息 创建预授权订单 等待用户唤起收银台支付
+        $time   = $request->route('time');  // 客户扫的二维码创建时间
+        $parent = decrypt($request->route('user'));  // 客户的邀请人信息
+        ## 如果是 一下手机号 押金金额修改 为1
+
+        // 创建预授权订单
+        $order  =  \App\Order::create([
+            'order_no'          => "HGJ".$this->build_rand_no(),      //预授权订单号
+            'order_request_no'  => "ZNHGJ".$this->build_rand_no(),    //预授权资金流水号
+            'order_title'       => "Apply for Probation",            //订单标题
+            'order_amount'      =>  9900,                           //订单金额
+            'order_user'        =>  $User->openid,                  //订单会员
+            'order_user_name'   =>  $User->nickname,                //订单会员名称
+            'order_parent'      =>  $parent,                        //邀请人帐号
+            'extra_param_outStoreAlias'    => '领取成功!',           //支付宝信息展示页展示的说明
+            'alipay_payee_logon'=>  $user_info->configs->account,              //收款方支付宝登录帐号
+            'platform'=>  $user_info->configs->platform_code,              //收款方支付宝登录帐号
+
+        ]);
+        // -- 生成预冻结资金订单
+        // Log::info(json_encode($order));
+        $key = 'Alipay.amounts.'.$user_info->configs->platform_code;
+        $amounts = config($key)?config($key):'100';
+        Log::info("key:".$key);
+        Log::info("amounts:".$amounts);
+        $FundAuthOrder  = $reponse->getAuthOrder($order);
+        return view('Aliorder', compact('User', 'order', 'parent', 'FundAuthOrder','amounts'));
+    }
+
+
+
 
 
 
@@ -144,68 +209,7 @@ class AliController extends Controller
             }
         }
     }
-    /**
-     * [getToken 授权后 获取AccessToken]
-     * @author Pudding 2019-09-23
-     * @param  Request $request [description]
-     * @return [type]           [description]
-     */
-    public function getUserInfo(Request $request)
-    {
-        $username = decrypt(basename($request->path()));
-        $user_info = User::where('username',$username )->first();
-        $reponse = new AlipayCli($user_info->configs);
-        $UserInfo = $reponse->getUserInfo($request->auth_code);
 
-        $User = \App\Zfbuser::where('openid', $UserInfo->alipay_user_userinfo_share_response->user_id)->first();
-        if(empty($User) or !$User)
-        {
-            $User = \App\Zfbuser::create([
-                'openid'    =>  $UserInfo->alipay_user_userinfo_share_response->user_id,
-                'nickname'  =>  isset($UserInfo->alipay_user_userinfo_share_response->nick_name) ? $UserInfo->alipay_user_userinfo_share_response->nick_name : '',
-                'province'  =>  isset($UserInfo->alipay_user_userinfo_share_response->province) ? $UserInfo->alipay_user_userinfo_share_response->province : '',
-                'city'      =>  isset($UserInfo->alipay_user_userinfo_share_response->city) ? $UserInfo->alipay_user_userinfo_share_response->city : '',
-                'avatar'    =>  isset($UserInfo->alipay_user_userinfo_share_response->avatar)?$UserInfo->alipay_user_userinfo_share_response->avatar:"",
-                'gender'    =>  isset($UserInfo->alipay_user_userinfo_share_response->gender)?$UserInfo->alipay_user_userinfo_share_response->gender:"",
-                'user_type' =>  isset($UserInfo->alipay_user_userinfo_share_response->user_type_value)?$UserInfo->alipay_user_userinfo_share_response->user_type_value:"",
-                'alipayid'  =>  isset($UserInfo->alipay_user_userinfo_share_response->alipay_user_id)?$UserInfo->alipay_user_userinfo_share_response->alipay_user_id:"",
-                'user_status'   =>  isset($UserInfo->alipay_user_userinfo_share_response->user_status)?$UserInfo->alipay_user_userinfo_share_response->user_status:"",
-                'is_certified'  =>  isset($UserInfo->alipay_user_userinfo_share_response->is_certified)?$UserInfo->alipay_user_userinfo_share_response->is_certified:"",
-                'is_student_certified' => isset($UserInfo->alipay_user_userinfo_share_response->is_student_certified)?$UserInfo->alipay_user_userinfo_share_response->is_student_certified:"",
-                'platform'=>$user_info->configs->platform_code
-            ]);
-        }
-        // 用户最后一次扫码时间
-        $User->login_time = date("Y-m-d H:i:s", time());
-        $User->save();
-        // -- 使用客户信息 创建预授权订单 等待用户唤起收银台支付
-        $time   = $request->route('time');  // 客户扫的二维码创建时间
-        $parent = decrypt($request->route('user'));  // 客户的邀请人信息
-        ## 如果是 一下手机号 押金金额修改 为1
-
-        // 创建预授权订单
-        $order  =  \App\Order::create([
-            'order_no'          => "HGJ".$this->build_rand_no(),      //预授权订单号
-            'order_request_no'  => "ZNHGJ".$this->build_rand_no(),    //预授权资金流水号
-            'order_title'       => "Apply for Probation",            //订单标题
-            'order_amount'      =>  9900,                           //订单金额
-            'order_user'        =>  $User->openid,                  //订单会员
-            'order_user_name'   =>  $User->nickname,                //订单会员名称
-            'order_parent'      =>  $parent,                        //邀请人帐号
-            'extra_param_outStoreAlias'    => '领取成功!',           //支付宝信息展示页展示的说明
-            'alipay_payee_logon'=>  $user_info->configs->account,              //收款方支付宝登录帐号
-            'platform'=>  $user_info->configs->platform_code,              //收款方支付宝登录帐号
-
-        ]);
-        // -- 生成预冻结资金订单
-        // Log::info(json_encode($order));
-        $key = 'Alipay.amounts.'.$user_info->configs->platform_code;
-        $amounts = config($key)?config($key):'100';
-        Log::info("key:".$key);
-        Log::info("amounts:".$amounts);
-        $FundAuthOrder  = $reponse->getAuthOrder($order);
-        return view('Aliorder', compact('User', 'order', 'parent', 'FundAuthOrder','amounts'));
-    }
 
 
     /**
