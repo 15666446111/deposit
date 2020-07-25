@@ -67,7 +67,7 @@ class AliController extends Controller
         $UserInfo   = $reponse->getUserInfo($request->auth_code);
 
         $User = \App\Zfbuser::where('openid', $UserInfo->alipay_user_userinfo_share_response->user_id)->first();
-        dd($UserInfo);
+        
         if(empty($User) or !$User)
         {
             $User = \App\Zfbuser::create([
@@ -82,9 +82,10 @@ class AliController extends Controller
                 'user_status'   =>  isset($UserInfo->alipay_user_userinfo_share_response->user_status)?$UserInfo->alipay_user_userinfo_share_response->user_status:"",
                 'is_certified'  =>  isset($UserInfo->alipay_user_userinfo_share_response->is_certified)?$UserInfo->alipay_user_userinfo_share_response->is_certified:"",
                 'is_student_certified' => isset($UserInfo->alipay_user_userinfo_share_response->is_student_certified)?$UserInfo->alipay_user_userinfo_share_response->is_student_certified:"",
-                'platform'=>$user_info->configs->platform_code
+                //'platform'=>$user_info->configs->platform_code
             ]);
         }
+        dd($UserInfo);
         // 用户最后一次扫码时间
         $User->login_time = date("Y-m-d H:i:s", time());
         $User->save();
