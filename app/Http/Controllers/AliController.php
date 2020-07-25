@@ -91,14 +91,14 @@ class AliController extends Controller
         $User->save();
         // -- 使用客户信息 创建预授权订单 等待用户唤起收银台支付
         $time   = $request->route('time');  // 客户扫的二维码创建时间
-        
+
         $parent = decrypt($request->route('user'));  // 客户的邀请人信息
         ## 如果是 一下手机号 押金金额修改 为1
-
+        dd($parent);
         // 创建预授权订单
         $order  =  \App\Order::create([
-            'order_no'          => "HGJ".$this->build_rand_no(),      //预授权订单号
-            'order_request_no'  => "ZNHGJ".$this->build_rand_no(),    //预授权资金流水号
+            'order_no'          => "CJ".$this->build_rand_no(),         //预授权订单号
+            'order_request_no'  => "CJ".$this->build_rand_no(),         //预授权资金流水号
             'order_title'       => "Apply for Probation",             //订单标题
             'order_amount'      =>  9900,                             //订单金额
             'order_user'        =>  $User->openid,                    //订单会员
