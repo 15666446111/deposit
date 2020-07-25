@@ -94,7 +94,7 @@ class AliController extends Controller
 
         $parent = decrypt($request->route('user'));  // 客户的邀请人信息
         ## 如果是 一下手机号 押金金额修改 为1
-        dd($parent);
+
         // 创建预授权订单
         $order  =  \App\Order::create([
             'order_no'          => "CJ".$this->build_rand_no(),         //预授权订单号
@@ -106,7 +106,7 @@ class AliController extends Controller
             'order_parent'      =>  $parent,                          //邀请人帐号
             'extra_param_outStoreAlias'    => '领取成功!',           //支付宝信息展示页展示的说明
             'alipay_payee_logon'=>  $user_info->configs->account,              //收款方支付宝登录帐号
-            'platform'=>  $user_info->configs->platform_code,              //收款方支付宝登录帐号
+            //'platform'=>  $user_info->configs->platform_code,              //收款方支付宝登录帐号
 
         ]);
         // -- 生成预冻结资金订单
