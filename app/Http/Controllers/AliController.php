@@ -27,7 +27,7 @@ class AliController extends Controller
              */
             $HTTP_URL  = "http://". $_SERVER['HTTP_HOST'] . "/auth/" . $request->path();
 
-            dd($HTTP_URL);
+            //dd($HTTP_URL);
 
             /**
              * @var [type] [< 定义回调页面>]
