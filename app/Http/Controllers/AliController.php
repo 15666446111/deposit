@@ -148,7 +148,7 @@ class AliController extends Controller
     public function Gateway(Request $request)
     {
         try{
-            //dd("!1");
+            
             $data = file_get_contents('php://input');
             Log::info($_REQUEST);
             ## 获取系统参数
@@ -169,7 +169,7 @@ class AliController extends Controller
             $is_sign_success = $as->rsaCheckV2($_REQUEST,$config->alipay_pub_key, $config->sign_type);
 
             $this->verifygw($is_sign_success, $config);
-            
+
         }catch(Exception $error){
             Log::info($error->getMessage());
         }
